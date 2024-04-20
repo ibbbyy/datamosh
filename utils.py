@@ -1,4 +1,5 @@
 from mmap import mmap;
+from time import time;
 
 def convert_to_type(value, data_type):
     if data_type == int:
@@ -38,6 +39,8 @@ def clamp(value, min_, max_):
         return value;
 
 def split_channels(pixelarray):
+    start_time = time();  # Timing the function
+
     channel_length = int(len(pixelarray) / 3);
     red_channel = mmap(-1, channel_length);
     green_channel = mmap(-1, channel_length);
@@ -53,9 +56,15 @@ def split_channels(pixelarray):
             case 0:  # Blue
                 blue_channel.write(byte);
 
+    end_time = time();
+    elapsed_seconds = round(end_time - start_time, 2);
+    print(f"Split channels from pixelarray in {elapsed_seconds} seconds.");
+
     return red_channel, green_channel, blue_channel;
 
 def merge_channels(red_channel, green_channel, blue_channel):
+    start_time = time();  # Timing the function
+
     red_index = green_index = blue_index = 0;
     pixelarray_length = len(red_channel) + len(green_channel) + len(blue_channel);
     pixelarray = mmap(-1, pixelarray_length);
@@ -72,5 +81,9 @@ def merge_channels(red_channel, green_channel, blue_channel):
                 byte = blue_channel[blue_index].to_bytes(1, "big");
                 blue_index += 1;
         pixelarray.write(byte);
+
+    end_time = time();
+    elapsed_seconds = round(end_time - start_time, 2);
+    print(f"Merged channels to pixelarray in {elapsed_seconds} seconds.");
 
     return pixelarray;
