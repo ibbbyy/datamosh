@@ -89,76 +89,161 @@ def process_image(inputpath, outputpath, effectname, params={}):
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Saved to file in {elapsed_seconds} seconds.");
 
-if __name__ == "__main__":
-    # Defaults
-    inputpath = "coolbunny.jpeg";
-    outputpath = "output.png";
-    count = 1;
-    effectname = "";
-    params = {};
 
-    # Iterating through commandline arguments
-    # TODO: Use the builtin module for handling this. This was just a quick hack
-    for a in range(len(sys.argv)):
-        argument = sys.argv[a];
+def validate_image_path(path):
+    dirname, filename = os.path.split(path);
+    extension = os.path.splitext(filename)[1]
 
-        if argument in ["-i", "--input"]:
-            inputpath = sys.argv[a + 1];
-        elif argument in ["-o", "--output"]:
-            outputpath = sys.argv[a + 1];
-        elif argument in ["-c", "--count"]:
-            count = int(sys.argv[a + 1]);
+    # Making sure image format is supported
+    if extension.lower() not in Image.registered_extensions().keys():
+        raise ValueError(f"'{extension.replace('.', '')}' is not a supported image format");
+
+    # Creates a directory if one is specified and does not exist
+    if dirname:
+        if not os.path.exists(dirname):
+            os.mkdir(dirname);
+
+def parse_args(args):
+    return_values = {
+        "inputpath": None,
+        "outputpath": None,
+        "count": None,
+        "effectname": None,
+        "params": {},
+        }
+
+    for a in range(len(args)):
+        argument = args[a];
+
+        # Input/Output
+        if argument in ("-i", "--input"):
+            inputpath = args[a + 1];
+            validate_image_path(inputpath);
+
+            return_values["inputpath"] = inputpath;
+
+        elif argument in ("-o", "--output"):
+            outputpath = args[a + 1];
+            validate_image_path(outputpath);
+
+            return_values["outputpath"] = outputpath;
+
+        # Count
+        elif argument in ("-c", "--count"):
+            try:
+                count = int(args[a + 1]);
+            except ValueError:  # Giving a more descriptive error.
+                raise ValueError(f"Count (-c) expected integer, not '{count}'")
             if count <= 0:
                 count = 1;
-        elif argument in ["-e", "--effect"]:
-            effectname = sys.argv[a + 1];
-            effect = import_module(f"effects.{effectname}");
-        elif argument in ["-p", "--params"]:
-            # Getting the amount of parameters that have been specified
-            # TODO: add logic to this so it's not necessary that this has to be the final argument.
-            param_num = ( len(sys.argv) - (a + 1) ) / 2;
 
-            # Converting param_num to integer. If this fails that means there was an uneven amount of parameter names to values.
-            # Most commonly this is caused by improper formatting.
-            # The format should be the parameter name and then the parameter value.
-            # For example, -p offset 0.5
+            return_values["count"] = count;
+
+        # Effect
+        elif argument in ("-e", "--effect"):
+            effectname = args[a + 1];
+            # Validating effect exists
             try:
-                param_num = int(param_num);
-            except ValueError:
-                raise ValueError("Invalid parameters");
+                effect = import_module(f"effects.{effectname}");
+            except ModuleNotFoundError:
+                raise ValueError(f"Invalid effect '{effectname}'. Make sure it is located in the effects folder and you are not including the file extension.")
 
-            # Iterating through parameters
-            for p in range(param_num):
-                param_name = sys.argv[a+1 + (p*2)];
-                param_value = sys.argv[a+2 + (p*2)];
-                param_type = effect.params[param_name]["type"];
-                # Converting to correct type
-                param_value = utils.convert_to_type(param_value, param_type);
-                params[param_name] = param_value;
+            return_values["effectname"] = effectname;
 
-    original_outputpath = outputpath;
-    original_params = params.copy();
-    original_effectname = effectname;
+        # Parameters
+        elif argument in ("-p", "--params") and effectname:
+            arguments_left = args[a+1:];
+            valid_param_names = effect.params.keys()
 
-    for c in range(count):
-        # Refreshing any params that need to be randomized
-        params = original_params.copy();
+            for a_ in range( len(arguments_left) ):
+                arg = arguments_left[a_];
+
+                # Looking for a valid name
+                if not a_ % 2:
+                    if arg in valid_param_names:
+                        param_name = arg;
+                    else:
+                        # Exiting loop if argument is different argument.
+                        if arg.startswith("-"):
+                            break;
+                        else:
+                            print(f"WARNING: {arg} was not recongnized as a valid parameter and will be skipped.");
+                            param_name = None;
+
+                # Looking for a valid value
+                else:
+                    # Skipping invalid parameters
+                    if param_name == None:
+                        # Exiting loop if argument is different argument.
+                        if arg.startswith("-") and not arg[1:].isdigit():
+                            break;
+                        continue;
+
+                    param_type = effect.params[param_name]["type"];
+
+                    try:
+                        if param_type == int:
+                            converted_value = int(arg);
+                        elif param_type == float:
+                            converted_value = float(arg);
+                        elif data_type == bool:
+                                if arg.lower() in ("true", "tru", "tr", "t", "y", "yes", "1"):
+                                    converted_value = True;
+                                elif arg.lower() in ("false", "fals", "fal", "fa" "f", "n", "no", "0"):
+                                    converted_value = False;
+                                else:  # Not a valid boolean as far as can be interpreted.
+                                    raise ValueError();
+                        # If the argument does not fit into any valid types we raise an error
+                        else:
+                            raise ValueError();
+
+                    except ValueError:
+                        raise ValueError(f"Parameter '{param_name}' expects value to be typed as {param_type}, but {arg} could not be converted to {param_type}.");
+                        continue;
+
+                    return_values["params"][param_name] = converted_value;
+
+    return return_values;
+
+
+if __name__ == "__main__":
+    default_values = {
+        "inputpath": "coolbunny.jpeg",
+        "outputpath": "output.png",
+        "count": 1,
+        "effectname": "",
+    }
+
+    # Parsing commandline arguments
+    parsed_arguments = parse_args(sys.argv);
+
+    # Setting any unset arguments to their default
+    for arg_name in parsed_arguments.keys():
+        if parsed_arguments[arg_name] == None:
+            parsed_arguments[arg_name] = default_values[arg_name];
+
+    for c in range(parsed_arguments["count"]):
+        # Refreshing any parameters that need to be randomized
+        params = parsed_arguments["params"].copy();
 
         # Allowing for multiple output images
         if c > 0:
             print("-"*50);
-            splitext = os.path.splitext(original_outputpath);
+            splitext = os.path.splitext(parsed_arguments["outputpath"]);
             outputpath = splitext[0] + str(c) + splitext[1];
+        else:
+            outputpath = parsed_arguments["outputpath"];
 
         # Randomizing effect if not specified
-        if not original_effectname:
+        if not parsed_arguments["effectname"]:
             effects_list = os.listdir("effects");  # Grabbing all effects
-            # Removing the file extension (.py) from each effect
-            for i in range( len(effects_list) ):
-                splitext = os.path.splitext(effects_list[i])
-                effect_name = splitext[0];
-                effects_list[i] = effect_name;
-            effectname = random.choice(effects_list);  # Choosing effect
 
-        process_image(inputpath, outputpath, effectname, params);
+            # Removing the file extension (.py) from each effect
+            effects_list = [os.path.splitext(effect)[0] for effect in effects_list];
+
+            effectname = random.choice(effects_list);  # Randomizing effect from effects_list
+        else:
+            effectname = parsed_arguments["effectname"]
+
+        process_image(parsed_arguments["inputpath"], outputpath, effectname, params);
 
