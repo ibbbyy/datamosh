@@ -11,6 +11,10 @@ from importlib import import_module;
 import random;
 from time import time;
 
+# TODO: Animated image sequence support (APNG, GIF, MP4, etc) (Will require ffmpeg I think)
+# TODO: Multiple effects per image
+# TODO: Put process_image into it's own module
+
 
 def process_image(inputpath, outputpath, effectname, params={}):
     # Loading effect
@@ -87,7 +91,7 @@ def process_image(inputpath, outputpath, effectname, params={}):
 
     end_time = time();
     elapsed_seconds = round(end_time - start_time, 2);
-    print(f"Saved to file in {elapsed_seconds} seconds.");
+    print(f"Saved to file ({outputpath}) in {elapsed_seconds} seconds.");
 
 
 def validate_image_path(path):
@@ -243,7 +247,7 @@ if __name__ == "__main__":
 
             effectname = random.choice(effects_list);  # Randomizing effect from effects_list
         else:
-            effectname = parsed_arguments["effectname"]
+            effectname = parsed_arguments["effectname"];
 
         process_image(parsed_arguments["inputpath"], outputpath, effectname, params);
 
