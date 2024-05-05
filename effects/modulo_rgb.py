@@ -33,8 +33,8 @@ def effect(pixeldata, **kwargs):
 
     for byte_index in range(channel_length):
         red_byte = red[byte_index];
-        blue_byte = blue[byte_index];
         green_byte = green[byte_index];
+        blue_byte = blue[byte_index];
 
         red[byte_index] = normalize_byte(red_byte % red_modulo);
         green[byte_index] = normalize_byte(green_byte % green_modulo);
