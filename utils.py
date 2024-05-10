@@ -42,9 +42,22 @@ def split_channels(pixelarray):
     start_time = time();  # Timing the function
 
     channel_length = int(len(pixelarray) / 3);
-    red_channel = mmap(-1, channel_length);
-    green_channel = mmap(-1, channel_length);
-    blue_channel = mmap(-1, channel_length);
+    remainder = len(pixelarray) % 3  # I have no idea why but some images have a remainder
+
+    red_length = channel_length;
+    green_length = channel_length;
+    blue_length = channel_length;
+
+    if remainder > 0:
+        blue_length += 1;
+    if remainder > 1:
+        green_length += 1;
+    if remainder > 2:
+        red_length += 1;
+
+    red_channel = mmap(-1, red_length);
+    green_channel = mmap(-1, green_length);
+    blue_channel = mmap(-1, blue_length);
 
     for byte_index in range( len(pixelarray) ):
         byte = pixelarray[byte_index].to_bytes(1, "big");
@@ -55,6 +68,11 @@ def split_channels(pixelarray):
                 green_channel.write(byte);
             case 0:  # Blue
                 blue_channel.write(byte);
+
+    print(len(pixelarray))
+    print(len(red_channel))
+    print(len(green_channel))
+    print(len(blue_channel))
 
     end_time = time();
     elapsed_seconds = round(end_time - start_time, 2);
