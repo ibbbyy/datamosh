@@ -30,14 +30,6 @@ def normalize_byte(byte):
     byte = round(byte);
     return byte;
 
-def clamp(value, min_, max_):
-    if value < min_:
-        return min_;
-    elif value > max_:
-        return max_;
-    else:
-        return value;
-
 def split_channels(pixelarray):
     start_time = time();  # Timing the function
 

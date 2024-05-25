@@ -15,40 +15,71 @@ from time import time;
 # TODO: Multiple effects per image
 # TODO: Put process_image into it's own module
 
+def validate_params(effect, params):
+    # Validating parameters and randomizing missing parameters
+
+    return_params = {};
+
+    # Ensuring paramaters are valid
+    for param_name in params.keys():
+        # Skipping any undefined params
+        if param_name not in effect.params.keys():
+            print(f"WARNING: {param_name} is not a defined parameter, skipping.");
+            continue;
+
+        param_type = effect.params[param_name]["type"];
+        param_value = params[param_name];
+
+        if param_type in (int, float):
+            param_min = effect.params[param_name]["min"];
+            param_max = effect.params[param_name]["max"];
+
+            if param_value > param_max:
+                print(f"WARNING: The maximum valid value for {param_name} is {param_max}; you entered {param_value}. As a result, the value will be clamped.")
+                param_value = param_max;
+
+            elif param_value < param_min:
+                print(f"WARNING: The minimum valid value for {param_name} is {param_min}; you entered {param_value}. As a result, the value will be clamped.")
+                param_value = param_min;
+
+        elif param_type == str:
+            valid_values = tuple(v.lower() for v in effect.params[param_name]["values"]);
+            if param_value.lower() not in valid_values:
+                # Skipping for now, allowing it to be randomly generated later.
+                continue;
+
+        return_params[param_name] = param_value;
+
+    # Randomizing missing parameters
+    for param_name in effect.params.keys():
+        if param_name not in return_params.keys():
+            param_type = effect.params[param_name]["type"];
+
+            if param_type in (int, float):
+                param_min = effect.params[param_name]["min"];
+                param_max = effect.params[param_name]["max"];
+
+            if param_type == float:
+                return_params[param_name] = random.uniform(param_min, param_max);
+
+            elif param_type == int:
+                return_params[param_name] = random.randint(param_min, param_max);
+                
+            elif param_type == bool:
+                return_params[param_name] = random.choice((True, False));
+
+            elif param_type == str:
+                valid_values = tuple(v.lower() for v in effect.params[param_name]["values"]);
+                return_params[param_name] = random.choice(valid_values);
+
+    return return_params;
+    
 
 def process_image(inputpath, outputpath, effectname, params={}):
     # Loading effect
     effect = import_module(f"effects.{effectname}");
 
-    # Validating parameters and randomizing missing parameters
-    if len(params) > len(effect.params):
-        raise ValueError("Too many parameters");
-
-    elif len(params) <= len(effect.params):
-        for param_name in effect.params.keys():
-            # Randomizing parameters not specified
-            if param_name not in params.keys():
-                param_type = effect.params[param_name]["type"];
-                if param_type in (int, float):
-                    param_min = effect.params[param_name]["min"];
-                    param_max = effect.params[param_name]["max"];
-
-                if param_type == float:
-                    params[param_name] = random.uniform(param_min, param_max);
-                elif param_type == int:
-                    params[param_name] = random.randint(param_min, param_max);
-                elif param_type == bool:
-                    params[param_name] = random.choice((True, False));
-
-    # Clamping paramaters
-    for param_name in params.keys():
-        param_type = effect.params[param_name]["type"];
-        if param_type in (int, float):
-            param_value = params[param_name];
-            param_min = effect.params[param_name]["min"];
-            param_max = effect.params[param_name]["max"];
-            param_value = utils.clamp(param_value, param_min, param_max);
-            params[param_name] = param_value;
+    params = validate_params(effect, params);
 
     print(f"INPUT:  {inputpath}");
     print(f"OUTPUT: {outputpath}");
@@ -70,16 +101,16 @@ def process_image(inputpath, outputpath, effectname, params={}):
     pixeldata_mmap = mmap(-1, len(pixeldata_bytearray));
     pixeldata_mmap.write(pixeldata_bytearray);
 
-    start_time = time();  # Timing effect time
+    start_time = time();    # Measuring effect time
 
     # Applying the effect
     pixeldata_mmap = effect.effect(pixeldata_mmap, **params);
 
-    end_time = time();
+    end_time = time();      # End measuring effect time
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Effect finished processing in {elapsed_seconds} seconds.");
 
-    start_time = time();  # Timing save time
+    start_time = time();    # Measuring save time
 
     # Adding pixel data back to main memory map
     memorymap[headerlength:] = pixeldata_mmap[:];
@@ -89,7 +120,7 @@ def process_image(inputpath, outputpath, effectname, params={}):
     with Image.open(temp_bitmap) as im:
         im.save(outputpath);
 
-    end_time = time();
+    end_time = time();      # End measuring save time
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Saved to file ({outputpath}) in {elapsed_seconds} seconds.");
 
@@ -188,8 +219,10 @@ def parse_args(args):
                     try:
                         if param_type == int:
                             converted_value = int(arg);
+
                         elif param_type == float:
                             converted_value = float(arg);
+
                         elif param_type == bool:
                             if arg.lower() in ("true", "tru", "tr", "t", "y", "yes", "1"):
                                 converted_value = True;
@@ -198,6 +231,10 @@ def parse_args(args):
                             else:  # Not a valid boolean as far as can be interpreted
                                 print("Invalid boolean");
                                 raise ValueError();
+
+                        elif param_type == str:
+                            converted_value = arg;  # Value is already a string by default
+
                         # If the argument does not fit into any valid types we raise an error
                         else:
                             raise ValueError();
