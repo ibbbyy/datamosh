@@ -14,7 +14,7 @@ def effect(pixeldata, **kwargs):
     for byte_index in range( len(pixeldata) ):
         byte = pixeldata[byte_index];
         multiplied_byte = round(byte * multiple);
-        result_byte = multiplied_byte % 255;
+        result_byte = multiplied_byte % 256;
         pixeldata[byte_index] = result_byte;
 
     return pixeldata;

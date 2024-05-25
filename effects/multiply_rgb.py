@@ -36,8 +36,8 @@ def effect(pixeldata, **kwargs):
         blue_byte = blue[byte_index];
         green_byte = green[byte_index];
 
-        red[byte_index] = round(red_byte * red_multiplier) % 255;
-        green[byte_index] = round(green_byte * green_multiplier) % 255;
-        blue[byte_index] = round(blue_byte * blue_multiplier) % 255;
+        red[byte_index] = round(red_byte * red_multiplier) % 256;
+        green[byte_index] = round(green_byte * green_multiplier) % 256;
+        blue[byte_index] = round(blue_byte * blue_multiplier) % 256;
 
     return merge_channels(red, green, blue);

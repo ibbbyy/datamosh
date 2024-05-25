@@ -13,7 +13,7 @@ def effect(pixeldata, **kwargs):
 
     for byte_index in range( len(pixeldata) ):
         local_bytes = original_pixeldata[ byte_index-distance : byte_index+distance ];
-        result_byte = sum(local_bytes) % 255;
+        result_byte = sum(local_bytes) % 256;
         pixeldata[byte_index] = result_byte;
 
     return pixeldata;

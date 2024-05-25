@@ -22,7 +22,7 @@ def effect(pixeldata, **kwargs):
 
         subtracted_byte = abs(byte - offset_byte);
 
-        result_byte = subtracted_byte % 255;
+        result_byte = subtracted_byte % 256;
 
         pixeldata[byte_index] = result_byte;
 

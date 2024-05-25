@@ -21,7 +21,7 @@ def effect(pixeldata, **kwargs):
             offset_byte = pixeldata[offset_index - len(pixeldata)];
 
         added_byte = byte + offset_byte;
-        result_byte = added_byte % 255;
+        result_byte = added_byte % 256;
 
         pixeldata[byte_index] = result_byte;
 

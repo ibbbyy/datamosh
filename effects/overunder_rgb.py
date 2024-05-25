@@ -32,11 +32,11 @@ def overunder(byte, intensity):
     overflow = overflow_byte > 255;
 
     if underflow and not overflow:
-        result_byte = underflow_byte % 255;
+        result_byte = underflow_byte % 256;
     elif overflow and not underflow:
-        result_byte = overflow_byte % 255;
+        result_byte = overflow_byte % 256;
     else:
-        result_byte = (underflow_byte + overflow_byte) % 255;
+        result_byte = (underflow_byte + overflow_byte) % 256;
 
     return result_byte;
 
