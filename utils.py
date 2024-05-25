@@ -69,11 +69,6 @@ def split_channels(pixelarray):
             case 0:  # Blue
                 blue_channel.write(byte);
 
-    print(len(pixelarray))
-    print(len(red_channel))
-    print(len(green_channel))
-    print(len(blue_channel))
-
     end_time = time();
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Split channels from pixelarray in {elapsed_seconds} seconds.");
