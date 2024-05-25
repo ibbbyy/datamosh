@@ -96,7 +96,7 @@ def process_image(inputpath, outputpath, effectname, params={}):
 
 def validate_image_path(path):
     dirname, filename = os.path.split(path);
-    extension = os.path.splitext(filename)[1]
+    extension = os.path.splitext(filename)[1];
 
     # Making sure image format is supported
     if extension.lower() not in Image.registered_extensions().keys():
@@ -190,7 +190,7 @@ def parse_args(args):
                             converted_value = int(arg);
                         elif param_type == float:
                             converted_value = float(arg);
-                        elif data_type == bool:
+                        elif param_type == bool:
                                 if arg.lower() in ("true", "tru", "tr", "t", "y", "yes", "1"):
                                     converted_value = True;
                                 elif arg.lower() in ("false", "fals", "fal", "fa" "f", "n", "no", "0"):
