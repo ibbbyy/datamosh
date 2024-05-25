@@ -191,12 +191,13 @@ def parse_args(args):
                         elif param_type == float:
                             converted_value = float(arg);
                         elif param_type == bool:
-                                if arg.lower() in ("true", "tru", "tr", "t", "y", "yes", "1"):
-                                    converted_value = True;
-                                elif arg.lower() in ("false", "fals", "fal", "fa" "f", "n", "no", "0"):
-                                    converted_value = False;
-                                else:  # Not a valid boolean as far as can be interpreted.
-                                    raise ValueError();
+                            if arg.lower() in ("true", "tru", "tr", "t", "y", "yes", "1"):
+                                converted_value = True;
+                            elif arg.lower() in ("false", "fals", "fal", "fa", "f", "n", "no", "0"):
+                                converted_value = False;
+                            else:  # Not a valid boolean as far as can be interpreted
+                                print("Invalid boolean");
+                                raise ValueError();
                         # If the argument does not fit into any valid types we raise an error
                         else:
                             raise ValueError();
