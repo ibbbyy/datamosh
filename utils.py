@@ -1,6 +1,7 @@
 from mmap import mmap;
 from time import time;
 
+
 def convert_to_type(value, data_type):
     if data_type == int:
         return int(value);
@@ -22,6 +23,7 @@ def convert_to_type(value, data_type):
     else:
         raise ValueError("Unsupported data type");
 
+
 def normalize_byte(byte):
     if byte <= 10:
         byte *= 25.5;
@@ -30,11 +32,17 @@ def normalize_byte(byte):
     byte = round(byte);
     return byte;
 
+
+# RGB Channel functions
+# Known bug:
+# Some images defy these functions efforts to isolate color channels and show a striped pattern.
+# Not sure why.
+
 def split_channels(pixelarray):
     start_time = time();  # Timing the function
 
     channel_length = int(len(pixelarray) / 3);
-    remainder = len(pixelarray) % 3  # I have no idea why but some images have a remainder
+    remainder = len(pixelarray) % 3;  # I have no idea why but some images have a remainder
 
     red_length = channel_length;
     green_length = channel_length;
@@ -66,6 +74,7 @@ def split_channels(pixelarray):
     print(f"Split channels from pixelarray in {elapsed_seconds} seconds.");
 
     return red_channel, green_channel, blue_channel;
+
 
 def merge_channels(red_channel, green_channel, blue_channel):
     start_time = time();  # Timing the function
