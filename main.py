@@ -3,12 +3,13 @@ from PIL import Image;
 # Internal modules
 import utils;
 # Builtins
-import sys;
 from mmap import mmap;
-import tempfile;
-import os;
 from importlib import import_module;
 import random;
+import sys;
+import tempfile;
+import os;
+from pathlib import Path;
 from time import time;
 
 # TODO: Animated image sequence support (APNG, GIF, MP4, etc) (Will require ffmpeg I think)
@@ -76,7 +77,7 @@ def validate_params(effect, params):
     
 
 def process_image(inputpath, outputpath, effectname, params={}):
-    # Loading effect
+    # Loading effect file
     effect = import_module(f"effects.{effectname}");
 
     params = validate_params(effect, params);
@@ -86,6 +87,7 @@ def process_image(inputpath, outputpath, effectname, params={}):
     print(f"EFFECT: {effectname}");
     print("PARAMETERS:");
     print(str(params)[1:-1].replace(", ", "\n").replace(" ", "\t"));
+
 
     # Converting to bitmap
     with Image.open(inputpath) as im:
@@ -110,9 +112,10 @@ def process_image(inputpath, outputpath, effectname, params={}):
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Effect finished processing in {elapsed_seconds} seconds.");
 
+
     start_time = time();    # Measuring save time
 
-    # Adding pixel data back to main memory map
+    # Replacing the pixeldata of the original memory map for the image.
     memorymap[headerlength:] = pixeldata_mmap[:];
     memorymap.flush();
 
@@ -133,10 +136,10 @@ def validate_image_path(path):
     if extension.lower() not in Image.registered_extensions().keys():
         raise ValueError(f"'{extension.replace('.', '')}' is not a supported image format");
 
-    # Creates a directory if one is specified and does not exist
+    # Creates a directory in case it does not already exist
     if dirname:
-        if not os.path.exists(dirname):
-            os.mkdir(dirname);
+        Path(dirname).mkdir(parents=True, exist_ok=True);  
+
 
 def parse_args(args):
     return_values = {
@@ -250,7 +253,7 @@ def parse_args(args):
 
 if __name__ == "__main__":
     default_values = {
-        "inputpath": "coolbunny.jpeg",
+        "inputpath": "stream.jpg",
         "outputpath": "output.png",
         "count": 1,
         "effectname": "",
@@ -264,13 +267,13 @@ if __name__ == "__main__":
         if parsed_arguments[arg_name] == None:
             parsed_arguments[arg_name] = default_values[arg_name];
 
-    for c in range(parsed_arguments["count"]):
+    for c in range(1, parsed_arguments["count"]+1):
         # Refreshing any parameters that need to be randomized
         params = parsed_arguments["params"].copy();
 
         # Allowing for multiple output images
-        if c > 0:
-            print("-"*50);
+        if parsed_arguments["count"] > 1:
+            print("-"*25, f"OUTPUT #{c}", "-"*25);
             splitext = os.path.splitext(parsed_arguments["outputpath"]);
             outputpath = splitext[0] + str(c) + splitext[1];
         else:
