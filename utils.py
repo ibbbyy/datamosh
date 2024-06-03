@@ -3,6 +3,9 @@ from time import time;
 
 
 def convert_to_type(value, data_type):
+    """
+    Converts value to given data_type
+    """
     if data_type == int:
         return int(value);
 
@@ -25,6 +28,9 @@ def convert_to_type(value, data_type):
 
 
 def normalize_byte(byte):
+    """
+    Multiplies smaller bytes to be bigger.
+    """
     if byte <= 10:
         byte *= 25.5;
     elif byte <= 100:
@@ -39,6 +45,9 @@ def normalize_byte(byte):
 # Not sure why.
 
 def split_channels(pixelarray):
+    """
+    Splits the pixelarray into three separate red, green, and blue pixel arrays.
+    """
     start_time = time();  # Timing the function
 
     channel_length = int(len(pixelarray) / 3);
@@ -77,6 +86,9 @@ def split_channels(pixelarray):
 
 
 def merge_channels(red_channel, green_channel, blue_channel):
+    """
+    Merges three red, green, and blue pixelarrays into one RGB pixelarray.
+    """
     start_time = time();  # Timing the function
 
     red_index = green_index = blue_index = 0;
