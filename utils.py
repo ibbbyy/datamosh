@@ -4,9 +4,13 @@ from time import time;
 
 def convert_to_type(value, data_type):
     """
-    Converts value to given data_type
+    Converts a string value to given data_type
     """
-    if data_type == int:
+
+    if data_type == str:
+        return value;
+
+    elif data_type == int:
         return int(value);
 
     elif data_type == float:
