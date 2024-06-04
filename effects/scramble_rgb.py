@@ -4,41 +4,35 @@ import random;
 from sys import maxsize;
 
 params = {
-    "red_chunk_size":
+    "chunk_size":
         {
             "type": float,
             "min": 0.0,
             "max": 1.0,
         },
-    "red_offset":
+    "offset":
         {
             "type": float,
             "min": 0.0,
             "max": 1.0,
         },
-    "green_chunk_size":
+    "red_weight":
         {
             "type": float,
             "min": 0.0,
-            "max": 1.0,
+            "max": 2.0,
         },
-    "green_offset":
+    "green_weight":
         {
             "type": float,
             "min": 0.0,
-            "max": 1.0,
+            "max": 2.0,
         },
-    "blue_chunk_size":
+    "blue_weight":
         {
             "type": float,
             "min": 0.0,
-            "max": 1.0,
-        },
-    "blue_offset":
-        {
-            "type": float,
-            "min": 0.0,
-            "max": 1.0,
+            "max": 2.0,
         },
     "seed":
         {
@@ -90,12 +84,18 @@ def scramble(pixeldata, chunk_size, offset):
     return pixeldata;
 
 def effect(pixeldata, **kwargs):
-    red_chunk_size = kwargs["red_chunk_size"] * 0.5;
-    red_offset = kwargs["red_offset"];
-    green_chunk_size = kwargs["green_chunk_size"] * 0.5;
-    green_offset = kwargs["green_offset"];
-    blue_chunk_size = kwargs["blue_chunk_size"] * 0.5;
-    blue_offset = kwargs["blue_offset"];
+    chunk_size = kwargs["chunk_size"] * 0.5;
+    offset = kwargs["offset"] * 0.5;
+
+    red_chunk_size = chunk_size * kwargs["red_weight"];
+    red_offset = offset * kwargs["red_weight"];
+
+    green_chunk_size = chunk_size * kwargs["green_weight"];
+    green_offset = offset * kwargs["green_weight"];
+
+    blue_chunk_size = chunk_size * kwargs["blue_weight"];
+    blue_offset = offset * kwargs["blue_weight"];
+
     random.seed(kwargs["seed"]);
 
     red, green, blue = split_channels(pixeldata);
