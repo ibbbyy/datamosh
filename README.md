@@ -7,6 +7,7 @@ Only PIL is required to use this program.
 ## Usage
 Run as a commandline script.
 Example: `python main.py -i image.png -e xor_self_offset`
+This will run the effect `xor_self_offset` on `image.png` (located in the local directory) with random parameters (because they have not been specified.)
 ### Arguments
 `-i` or `--input` determines the input file.
 
