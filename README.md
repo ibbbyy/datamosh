@@ -19,7 +19,7 @@ Example: `python main.py -i image.png -e xor_self_offset`
 `-p` or `--params` lets you specify custom parameters instead of the default random. Follows the format `-p param value`, for example `-p intensity 0.5`
 
 ## Creating custom effects
-Create a copy of the template.py template and manipulate the result_byte to any value as long as it is a positive integer less than 256. Use modulo 255 to "wrap around" the byte's value, keeping it in range.
+Create a copy of the template.py template and manipulate the result_byte to any value as long as it is a positive integer less than 256. Use modulo 256 to "wrap around" the byte's value, keeping it in range from 0 to 255.
 Look at other included effects for inspiration/instruction.
 
 # Contact
