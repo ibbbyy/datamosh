@@ -23,7 +23,8 @@ def validate_params(effect, params):
 
     # Ensuring paramaters are valid
     for param_name in params.keys():
-        # Skipping any undefined params
+
+        # Skipping any undefined parameters
         if param_name not in effect.params.keys():
             print(f"WARNING: {param_name} is not a defined parameter, skipping.");
             continue;
@@ -46,10 +47,11 @@ def validate_params(effect, params):
         elif param_type == str:
             valid_values = tuple(v.lower() for v in effect.params[param_name]["values"]);
             if param_value.lower() not in valid_values:
-                # Skipping for now, allowing it to be randomly generated later.
+                # Skipping this parameter for now, allowing it to be randomly generated later.
                 continue;
 
         return_params[param_name] = param_value;
+
 
     # Randomizing missing parameters
     for param_name in effect.params.keys():
@@ -267,17 +269,20 @@ if __name__ == "__main__":
         if parsed_arguments[arg_name] == None:
             parsed_arguments[arg_name] = default_values[arg_name];
 
-    for c in range(1, parsed_arguments["count"]+1):
+
+    for count in range(1, parsed_arguments["count"]+1):
         # Refreshing any parameters that need to be randomized
         params = parsed_arguments["params"].copy();
 
+
         # Allowing for multiple output images
         if parsed_arguments["count"] > 1:
-            print("-"*25, f"OUTPUT #{c}", "-"*25);
+            print("-"*25, f"OUTPUT #{count}", "-"*25);
             splitext = os.path.splitext(parsed_arguments["outputpath"]);
-            outputpath = splitext[0] + str(c) + splitext[1];
+            outputpath = splitext[0] + str(count) + splitext[1];
         else:
             outputpath = parsed_arguments["outputpath"];
+
 
         # Randomizing effect if not specified
         if not parsed_arguments["effectname"]:
@@ -289,6 +294,7 @@ if __name__ == "__main__":
             effectname = random.choice(effects_list);  # Randomizing effect from effects_list
         else:
             effectname = parsed_arguments["effectname"];
+
 
         process_image(parsed_arguments["inputpath"], outputpath, effectname, params);
 
