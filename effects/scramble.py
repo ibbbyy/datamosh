@@ -24,15 +24,15 @@ params = {
     }
 
 def effect(pixeldata, **kwargs):
-    chunk_size = kwargs["chunk_size"];
+    chunk_size = kwargs["chunk_size"] * 0.5;
+    offset = kwargs["offset"];
     random.seed(kwargs["seed"]);
-
-    chunk_size /= 2;  # Halves range to 0.0 to 0.5 which ensures there is atleast two chunks
+    
     chunk_size = round( len(pixeldata) * chunk_size );
     chunk_num = ceil( len(pixeldata) / chunk_size );
 
     chunk_list = [];
-    chunk_end = round(len(pixeldata) * kwargs["offset"]);  # Our start position
+    chunk_end = round(len(pixeldata) * offset);  # Our start position
 
     for chunk_index in range( chunk_num ):
         chunk_start = chunk_end;
