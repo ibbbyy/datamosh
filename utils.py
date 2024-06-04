@@ -43,10 +43,12 @@ def normalize_byte(byte):
     return byte;
 
 
-# RGB Channel functions
+# ------------------ RGB Channel functions ------------------
+#
 # Known bug:
-# Some images defy these functions efforts to isolate color channels and show a striped pattern.
-# Not sure why.
+# Some images do not get properly split, this is because for some reason they have a fourth channel.
+# Not sure why they have a fourth channel if its a bitmap image -- something to look into later.
+# Unsure how to implement a fix fort this or how to work this into existing effects.
 
 def split_channels(pixelarray):
     """
@@ -55,34 +57,32 @@ def split_channels(pixelarray):
     start_time = time();  # Timing the function
 
     channel_length = int(len(pixelarray) / 3);
-    remainder = len(pixelarray) % 3;  # I have no idea why but some images have a remainder
 
     red_length = channel_length;
     green_length = channel_length;
     blue_length = channel_length;
 
+    # ------------------------------------------------------
+    # I have no idea why but some images have a remainder
+    remainder = len(pixelarray) % 3;  
+
     if remainder > 0:
         blue_length += 1;
-    if remainder > 1:
-        green_length += 1;
-    if remainder > 2:
-        red_length += 1;
-
+        if remainder > 1:
+            green_length += 1;
+            if remainder > 2:
+                red_length += 1;
+    # ------------------------------------------------------
+    
     red_channel = mmap(-1, red_length);
     green_channel = mmap(-1, green_length);
     blue_channel = mmap(-1, blue_length);
 
-    for byte_index in range( len(pixelarray) ):
-        byte = pixelarray[byte_index].to_bytes(1, "big");
-        match byte_index % 3:
-            case 2:  # Red
-                red_channel.write(byte);
-            case 1:  # Green
-                green_channel.write(byte);
-            case 0:  # Blue
-                blue_channel.write(byte);
+    red_channel[:] = pixelarray[2::3];
+    green_channel[:] = pixelarray[1::3];
+    blue_channel[:] = pixelarray[0::3];
 
-    end_time = time();
+    end_time = time();  # Timing the function
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Split channels from pixelarray in {elapsed_seconds} seconds.");
 
@@ -95,24 +95,19 @@ def merge_channels(red_channel, green_channel, blue_channel):
     """
     start_time = time();  # Timing the function
 
-    red_index = green_index = blue_index = 0;
+    red_index = 0;
+    green_index = 0; 
+    blue_index = 0;
+
     pixelarray_length = len(red_channel) + len(green_channel) + len(blue_channel);
+
     pixelarray = mmap(-1, pixelarray_length);
 
-    for byte_index in range(pixelarray_length):
-        match byte_index % 3:
-            case 2:  # Red
-                byte = red_channel[red_index].to_bytes(1, "big");
-                red_index += 1;
-            case 1:  # Green
-                byte = green_channel[green_index].to_bytes(1, "big");
-                green_index += 1;
-            case 0:  # Blue
-                byte = blue_channel[blue_index].to_bytes(1, "big");
-                blue_index += 1;
-        pixelarray.write(byte);
+    pixelarray[2::3] = red_channel[:];
+    pixelarray[1::3] = green_channel[:];
+    pixelarray[0::3] = blue_channel[:];
 
-    end_time = time();
+    end_time = time();  # Timing the function
     elapsed_seconds = round(end_time - start_time, 2);
     print(f"Merged channels to pixelarray in {elapsed_seconds} seconds.");
 
