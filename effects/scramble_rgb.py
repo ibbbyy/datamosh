@@ -20,19 +20,19 @@ params = {
         {
             "type": float,
             "min": 0.0,
-            "max": 2.0,
+            "max": 5.0,
         },
     "green_weight":
         {
             "type": float,
             "min": 0.0,
-            "max": 2.0,
+            "max": 5.0,
         },
     "blue_weight":
         {
             "type": float,
             "min": 0.0,
-            "max": 2.0,
+            "max": 5.0,
         },
     "seed":
         {
@@ -84,8 +84,8 @@ def scramble(pixeldata, chunk_size, offset):
     return pixeldata;
 
 def effect(pixeldata, **kwargs):
-    chunk_size = kwargs["chunk_size"] * 0.5;
-    offset = kwargs["offset"] * 0.5;
+    chunk_size = kwargs["chunk_size"] * 0.2;
+    offset = kwargs["offset"] * 0.2;
 
     red_chunk_size = chunk_size * kwargs["red_weight"];
     red_offset = offset * kwargs["red_weight"];
