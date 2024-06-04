@@ -14,7 +14,7 @@ Example: `python main.py -i image.png -e xor_self_offset`
 
 `-c` or `--count` determines how many times the script will run.
 
-`-e` or `--effect` determines which effect to use. Must be the name of the python file located in the effects folder.
+`-e` or `--effect` determines which effect to use. Must be the name of the python file (without the file extension) located in the effects folder.
 
 `-p` or `--params` lets you specify custom parameters instead of the default random. Follows the format `-p param value`, for example `-p intensity 0.5`
 
